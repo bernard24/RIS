@@ -34,30 +34,17 @@ function MatchCriterion:updateOutput(qs_and_ss, ys)
    local zero = torch.Tensor(1):fill(0)
    local one = torch.Tensor(1):fill(1)
 
---   local M_size = elements_prediction+elements_gt-1
---   local M_size = math.max(elements_prediction,elements_gt)
    local M_size = elements_gt
    local M = torch.Tensor(M_size, M_size):fill(0)
    if gpumode==1 then
---	M = M:cuda()
 	zero = zero:cuda()
 	one = one:cuda()
    end
---   local minimal = 2
---   local who_minimal = 0
-   for i = 1, elements_gt do --prediction do
---[[	if ss[i]<=minimal then
-		minimal = ss[i]
-		who_minimal = i
-	end 
-	self.who_min_ss[i] = who_minimal ]]--
+   for i = 1, elements_gt do
 	for j = 1, elements_gt do
 		M[i][j] = -iou(qs:sub(1,-1,i,i), ys:sub(1,-1,j,j))
-		M[i][j] = M[i][j] + self.lambda*self.criterion:forward(ss:sub(i,i), one) --+ 1
+		M[i][j] = M[i][j] + self.lambda*self.criterion:forward(ss:sub(i,i), one)
 	end
---[[	for j = elements_gt+1, M_size do
-		M[i][j] = self.lambda*self.criterion:forward(torch.Tensor(1):fill(minimal), zero)
-	end ]]--
    end
    self.assignments = Hung(M)
    self.output = 0
