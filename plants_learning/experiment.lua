@@ -19,7 +19,7 @@ cmd:option('-lstm_model', '', 'LSTM model')
 cmd:option('-seq_length', 40, 'Maximum number of RNN iterations at training stage')
 cmd:option('-lambda', 1, 'Hyperparameter pondering the classification accuracy term.')
 cmd:option('-pass_output', 0, 'Pass previous output as input')
-cmd:option('-non_object_iterations', 0, 'Number of iterations over the number of objects apearing in an image')
+cmd:option('-non_object_iterations', 1, 'Number of iterations over the number of objects apearing in an image')
 
 --cmd:option('-height', 106, 'Height of the resized images')
 --cmd:option('-width', 100, 'Width of the resized images')

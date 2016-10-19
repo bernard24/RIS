@@ -10,8 +10,8 @@ function MatchCriterion:__init(lambda)
    self.assignments = {}
    self.who_min_ss = {}
    if gpumode==1 then
-	   self.criterion:cuda()
-	   self.gt_class = self.gt_class:cuda()
+	self.criterion:cuda()
+	self.gt_class = self.gt_class:cuda()
    end
 end
 
@@ -29,8 +29,11 @@ function MatchCriterion:updateOutput(qs_and_ss, ys)
 
    local original_dimensionality = (#qs)[1]
    local elements_prediction = (#qs)[2]
-   local elements_gt = (#ys)[2]
-
+   local elements_gt = 0
+   self.assignments = {}
+   if ys:nElement()>0 then
+	elements_gt = (#ys)[2]
+   end
    local zero = torch.Tensor(1):fill(0)
    local one = torch.Tensor(1):fill(1)
 
@@ -40,13 +43,15 @@ function MatchCriterion:updateOutput(qs_and_ss, ys)
 	zero = zero:cuda()
 	one = one:cuda()
    end
-   for i = 1, elements_gt do
-	for j = 1, elements_gt do
-		M[i][j] = -iou(qs:sub(1,-1,i,i), ys:sub(1,-1,j,j))
-		M[i][j] = M[i][j] + self.lambda*self.criterion:forward(ss:sub(i,i), one)
-	end
+   for i = 1, math.min(elements_prediction,elements_gt) do
+	   for j = 1, elements_gt do
+			M[i][j] = -iou(qs:sub(1,-1,i,i), ys:sub(1,-1,j,j))
+			M[i][j] = M[i][j] + self.lambda*self.criterion:forward(ss:sub(i,i), one)
+       end
    end
-   self.assignments = Hung(M)
+   if elements_gt>0 then
+	   self.assignments = Hung(M)
+   end
    self.output = 0
 
 if not self.assignments then
@@ -70,8 +75,11 @@ function MatchCriterion:updateGradInput(qs_and_ss, ys)
 
    local original_dimensionality = (#qs)[1]
    local elements_prediction = (#qs)[2]
-   local elements_gt = (#ys)[2]
-   
+   local elements_gt = 0
+   if ys:nElement()>0 then
+	elements_gt = (#ys)[2]
+   end   
+
    local zero = torch.Tensor(1):fill(0)
    local one = torch.Tensor(1):fill(1)
 
