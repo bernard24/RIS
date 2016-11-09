@@ -50,7 +50,7 @@ end
 
 rnn_type = cmd_params.rnn_type
 
-criterion = nn.MatchCriterion2(cmd_params.lambda)
+criterion = nn.MatchCriterion(cmd_params.lambda)
 if gpumode==1 then
     criterion = criterion:cuda()
 end
